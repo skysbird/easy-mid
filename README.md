@@ -20,13 +20,13 @@ duplicating efforts.
 
 Quick start
 -----------
-
-* make
-* cd ebin
-* erl -boot start_sasl
-
+``` erlang
+make
+cd ebin
+erl -boot start_sasl
+```
 Then in the erlang shell, start the application
-
-* application:start(ss_server).
-
+``` erlang
+application:start(ss_server).
+```
 
