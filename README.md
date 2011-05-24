@@ -26,6 +26,7 @@ cd ebin
 erl -boot start_sasl
 ```
 Then in the erlang shell, start the application
+
 ``` erlang
 application:start(ss_server).
 ```
