@@ -15,14 +15,15 @@
 
 -define(DEF_PORT,    2222).
 %%parameters process function
-get_app_env(Opt,Default)->
-    case application:get_env(application:get_application(),Opt) of
+get_app_env(Opt,Default)->   
+    {ok,App} = application:get_application(),      
+    case application:get_env(App,Opt) of
 	{ok,Val}->
 	    Val;
 	_ ->
 	    case init:get_argument(Opt) of
-		[[Val|_]]->
-		    Val;
+		{ok,[[Val|_]]}->
+		    list_to_integer(Val);
 		error ->
 		    Default
 	    end

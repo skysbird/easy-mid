@@ -31,3 +31,27 @@ Then in the erlang shell, start the application
 application:start(ss_server).
 ```
 
+
+### Choose the custom listen port(default is 2222) ###
+
+#### custom parameter in command line ####
+
+``` erlang
+erl -boot start_sasl -listen_port 12345
+```
+
+#### change the default parameter in app resource file ####
+
+Edit the ss_server.app file in ebin directory.Find out the line
+
+{env, []}
+
+change it to
+
+{env, [{listen_port,12345}]}
+
+then the default listen_port is changed to 12345
+
+
+
+

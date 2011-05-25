@@ -12,5 +12,5 @@ ebin/%.beam: %.erl
 	erlc +debug_info -W -o ebin $<
 
 clean: 
-	rm -rf ebin/*.beam
+	rm -rf ebin/*.beam ebin/*.dump
 
