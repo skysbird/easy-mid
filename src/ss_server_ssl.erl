@@ -51,7 +51,7 @@ start_link(Port,Module) ->
 %% @end
 %%--------------------------------------------------------------------
 init([Port,Module]) ->
-    spawn_link(fun()->start_ssl(Port,Module)end),
+    start_ssl(Port,Module),
     {ok, #state{}}.
 
 %%--------------------------------------------------------------------
@@ -127,6 +127,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%%===================================================================
 start_ssl(Port,Module) when is_integer(Port),is_atom(Module) ->
+%    process_flag(trap_exit,true),
     io:format("start ssl listener server\n"),
     ssl:start(),
     ssl:seed("seed-every-time"),
@@ -141,16 +142,17 @@ start_ssl(Port,Module) when is_integer(Port),is_atom(Module) ->
         {keyfile, "../cert/privkey.pem"}
     ]),
     io:format("ready to accept connections at port ~p ~p\n", [Port,ListenSocket]),
-    par_connect(ListenSocket,Module,1).
+    spawn_link(fun()-> par_connect(ListenSocket,Module,1)end).
 
 
     
 par_connect(ListenSocket,Module,N)->
     {ok, Socket} = ssl:transport_accept(ListenSocket), 
+    spawn(fun()->par_connect(ListenSocket,Module,N+1)end),
     %io:format("~p\n",[Info]),
     io:format("accepted connection from ~p--------~p\n", [ssl:peername(Socket),N]),
-    server_loop(Socket,Module),
-    par_connect(ListenSocket,Module,N+1).
+    server_loop(Socket,Module).
+
    
 server_loop(Socket,Module) ->
     ssl:ssl_accept(Socket),
