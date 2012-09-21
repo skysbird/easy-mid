@@ -95,7 +95,8 @@ init([]) ->
 %% Notification event coming from client
 'WAIT_FOR_DATA'({data, Data}, #state{socket=S} = State) ->
     io:format("data came\n"),
-    %%io:format(Data),
+    io:format(Data),
+    io:format("data came in\n"),
     ok = ssl:send(S, Data),
     {next_state, 'WAIT_FOR_DATA', State, ?TIMEOUT};
 

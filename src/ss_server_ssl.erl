@@ -134,9 +134,11 @@ start_ssl(Port,Module) when is_integer(Port),is_atom(Module) ->
     {ok, ListenSocket} = ssl:listen(Port, [
         {ssl_imp, new},
         {active, false},
-	{reuseaddr,true},
+	    {reuseaddr,true},
         {backlog,1000000},
-%        {verify, 0},
+        {nodelay,true},% set tcp nodelay
+        %just not verify for test
+        %{verify, 0},
     binary,
 	{packet, 0},
         {certfile, "../cert/cacert.pem"},
