@@ -80,9 +80,13 @@ init([]) ->
     %% inet:setopts(Socket, [{active, once}, {packet, 2}, binary]),
     %% for test
     ssl:setopts(Socket, [{active, once}]),
-    {ok, {IP, _Port}} = ssl:peername(Socket),
-    io:format("~p,~p,socket in\n",[IP,_Port]),
-    {next_state, 'WAIT_FOR_DATA', State#state{socket=Socket, addr=IP}, ?TIMEOUT};
+    case  ssl:peername(Socket) of
+        {ok, {IP, _Port}} -> io:format("~p,~p,socket in\n",[IP,_Port]),
+        {next_state, 'WAIT_FOR_DATA', State#state{socket=Socket, addr=IP}, ?TIMEOUT};
+        {error,closed} -> io:format("connection closed"),
+        {stop, normal, State}
+    end;
+
 'WAIT_FOR_SOCKET'(Other, State) ->
     error_logger:error_msg("State: 'WAIT_FOR_SOCKET'. Unexpected message: ~p\n", [Other]),
     %% Allow to receive async messages

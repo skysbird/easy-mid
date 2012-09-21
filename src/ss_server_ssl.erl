@@ -130,14 +130,15 @@ start_ssl(Port,Module) when is_integer(Port),is_atom(Module) ->
 %    process_flag(trap_exit,true),
     io:format("start ssl listener server\n"),
     ssl:start(),
-    ssl:seed("seed-every-time"),
+    %ssl:seed("seed-every-time"),
     {ok, ListenSocket} = ssl:listen(Port, [
         {ssl_imp, new},
         {active, false},
 	{reuseaddr,true},
         {backlog,1000000},
 %        {verify, 0},
-	{packet, line},
+    binary,
+	{packet, 0},
         {certfile, "../cert/cacert.pem"},
         {keyfile, "../cert/privkey.pem"}
     ]),
