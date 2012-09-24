@@ -95,9 +95,22 @@ init([]) ->
 %% Notification event coming from client
 'WAIT_FOR_DATA'({data, Data}, #state{socket=S} = State) ->
     io:format("data came\n"),
-    io:format(Data),
-    io:format("data came in\n"),
-    ok = ssl:send(S, Data),
+    io:format("route request to process module\n"),
+    %Port = open_port({spawn, "python -u "++code:priv_dir("ss_server")++"/process.py"},[{packet, 4}, binary,nouse_stdio]),
+
+    Port = open_port({spawn, "python -u "++"../priv"++"/process.py"},[{packet, 4}, binary,nouse_stdio]),
+	port_command(Port,term_to_binary({Data})),
+	receive
+	{Port,{data,PData}} ->
+	    port_close(Port),
+	    S1 = binary_to_term(PData),
+        %io:format("~w~n",S1),
+	    S2 = binary_to_list(S1),
+        io:format(S2),
+        io:format("processed data received\n"),
+        ok = ssl:send(S,S2)
+	end,
+
     {next_state, 'WAIT_FOR_DATA', State, ?TIMEOUT};
 
 'WAIT_FOR_DATA'(timeout, State) ->
