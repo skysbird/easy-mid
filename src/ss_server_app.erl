@@ -53,6 +53,10 @@ get_app_env(Opt,Default)->
 %%--------------------------------------------------------------------
 start(_StartType, _StartArgs) ->
     ListenPort = get_app_env(listen_port,?DEF_PORT),
+    ets:new(socket_list,[public,named_table]),
+    io:format("starting socket_list table...."),
+    ss_socket_agent:start_link(),
+    io:format("starting socket agent ...."),
     case ss_server_sv:start_link([ListenPort,ss_server_ssl_fsm]) of
 	{ok, Pid} ->
 	    {ok, Pid};

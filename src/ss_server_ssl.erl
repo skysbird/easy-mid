@@ -152,7 +152,8 @@ start_ssl(Port,Module) when is_integer(Port),is_atom(Module) ->
 par_connect(ListenSocket,Module,N)->
     {ok, Socket} = ssl:transport_accept(ListenSocket), 
     spawn(fun()->par_connect(ListenSocket,Module,N+1)end),
-    %io:format("~p\n",[Info]),
+    io:format("~p\n",[Socket]),
+    io:format("~p\n",[self()]),
     io:format("accepted connection from ~p--------~p\n", [ssl:peername(Socket),N]),
     server_loop(Socket,Module).
 

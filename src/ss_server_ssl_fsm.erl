@@ -80,11 +80,19 @@ init([]) ->
     %% inet:setopts(Socket, [{active, once}, {packet, 2}, binary]),
     %% for test
     ssl:setopts(Socket, [{active, once}]),
+    %{sslsocket,new_ssl,<0.63.0>}
+    SocketPid = case Socket of
+        {sslsocket,new_ssl,Pid} -> io:format("socket pid is ~p\n",[Pid]),
+        pid_to_list(Pid)
+    end,
+    ets:insert(socket_list,{SocketPid,Socket}),
     case  ssl:peername(Socket) of
         {ok, {IP, _Port}} -> io:format("~p,~p,socket in\n",[IP,_Port]),
-        {next_state, 'WAIT_FOR_DATA', State#state{socket=Socket, addr=IP}, ?TIMEOUT};
-        {error,closed} -> io:format("connection closed"),
-        {stop, normal, State}
+            {next_state, 'WAIT_FOR_DATA', State#state{socket=Socket, addr=IP}, ?TIMEOUT};
+        {error,closed} -> 
+            ets:delete(socket_list,SocketPid),
+            io:format("connection closed"),
+            {stop, normal, State}
     end;
 
 'WAIT_FOR_SOCKET'(Other, State) ->
@@ -99,23 +107,26 @@ init([]) ->
     %Port = open_port({spawn, "python -u "++code:priv_dir("ss_server")++"/process.py"},[{packet, 4}, binary,nouse_stdio]),
 
     Port = open_port({spawn, "python -u "++"../priv"++"/process.py"},[{packet, 4}, binary,nouse_stdio]),
-	port_command(Port,term_to_binary({Data})),
+	port_command(Port,term_to_binary({Data,node(),list_to_binary(get_socket_pid(S))})),
 	receive
-	{Port,{data,PData}} ->
+	{Port,{data,_}} ->
 	    port_close(Port),
-	    S1 = binary_to_term(PData),
+        ss_socket_agent:forward(node(),get_socket_pid(S),"hello")
+	    %S1 = binary_to_term(PData),
         %io:format("~w~n",S1),
-	    S2 = binary_to_list(S1),
-        io:format(S2),
-        io:format("processed data received\n"),
-        ok = ssl:send(S,S2)
+	    %S2 = binary_to_list(S1),
+        %io:format(S2),
+        %io:format("processed data received\n"),
+        %ok = ssl:send(S,S2);
 	end,
 
     {next_state, 'WAIT_FOR_DATA', State, ?TIMEOUT};
 
-'WAIT_FOR_DATA'(timeout, State) ->
+'WAIT_FOR_DATA'(timeout, #state{socket=S} = State) ->
     io:format("data timeout\n"),
     error_logger:error_msg("~p Client connection timeout - closing.\n", [self()]),
+    SocketPid = get_socket_pid(S),
+    ets:delete(socket_list,SocketPid),
     {stop, normal, State};
 
 'WAIT_FOR_DATA'(Data, State) ->
@@ -167,6 +178,9 @@ handle_info({ssl, Socket, Bin}, StateName, #state{socket=Socket} = StateData) ->
 handle_info({ssl_closed, Socket}, _StateName,
             #state{socket=Socket, addr=Addr} = StateData) ->
     error_logger:info_msg("~p Client ~p disconnected.\n", [self(), Addr]),
+
+    SocketPid = get_socket_pid(Socket), 
+    ets:delete(socket_list,SocketPid),
     {stop, normal, StateData};
 %%--------------------------------------------------------------------
 %% @private
@@ -205,3 +219,14 @@ code_change(_OldVsn, StateName, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+get_socket_pid(Socket)->
+    SocketPid = case Socket of
+        {sslsocket,new_ssl,Pid} -> io:format("socket pid is ~p\n",[Pid]),
+        pid_to_list(Pid)
+    end,
+    SocketPid.
+
+   
+
+
