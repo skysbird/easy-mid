@@ -52,6 +52,21 @@ change it to
 
 then the default listen_port is changed to 12345
 
+#### python process_node example ####
+
+###start python process node###
+
+python process_node.py -n ss1@127.0.0.1 -c 123456
+
+this python process node is just echo the data it received
+
+###start easy-mid process node###
+
+/usr/local/bin/erl -boot start_sasl -listen_port 8243  -env ERL_NO_VFORK 1 -name ss@127.0.0.1 -setcookie 123456
+
+
+
+
 
 
 
