@@ -69,7 +69,13 @@ class EchoProtocol(object):
 #node 报文来自于哪个erlang节点(以便发送响应)
 #socket_id 报文来自于erlang节点上对应的Socket进程的pid(以便和node参数一起能够找到这个节点将数据发送回去)
 def process_protocol(data,node,socket_id):
-    EchoProtocol.process(data,node,socket_id,mb)
+    if type=="login":
+        LoginProtocol.process(data,node,socket_id,mb)
+    elif type=="order":
+        OrderProtocol.process(data,node,socket_id,mb)
+
+    else:
+        EchoProtocol.process(data,node,socket_id,mb)
 
     
 def __TestMBoxCallback(msg, *k, **kw):

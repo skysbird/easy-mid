@@ -11,6 +11,7 @@ Easy-Mid aims to provide following advantages:
 * **Easy** to use.
 * Almost **fast**.
 * **Hot Code Change**: protocol handlers are replaceable without shutdown your server.
+* **Losen Process Module**: protocol handlers are replaceable with any other Language(python for example).
 
 The server is currently in early development. Comments and suggestions are
 more than welcome. To contribute, either open bug reports, or fork the project
