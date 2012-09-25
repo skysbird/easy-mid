@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #! /usr/bin/env python
 
 ## A test case for testing packing/unpacking of erlang-terms:
@@ -50,12 +51,25 @@ def ExprRebuildAtoms(expr):
 def _TestMBoxRPCResponse(msg):
     print "RPC answer: %s" % `msg`
 
-def process_protocol(data,node,socket_id):
-    print data,node,socket_id
-    fargs = [node,socket_id,data]
-    global mb
-    mb.SendRPC(node, "ss_socket_agent", 'forward', map(lambda x: ExprRebuildAtoms(x),fargs), _TestMBoxRPCResponse)
 
+
+#echo 协议例子
+#只负责将收到数据发送回发送者
+class EchoProtocol(object):
+    @staticmethod
+    def process(data,node,socket_id,mb):
+        print data,node,socket_id
+        fargs = [node,socket_id,data]
+        mb.SendRPC(node, "ss_socket_agent", 'forward', map(lambda x: ExprRebuildAtoms(x),fargs), _TestMBoxRPCResponse)
+
+        
+#真正的处理逻辑
+#参数解释
+#data 收到的报文
+#node 报文来自于哪个erlang节点(以便发送响应)
+#socket_id 报文来自于erlang节点上对应的Socket进程的pid(以便和node参数一起能够找到这个节点将数据发送回去)
+def process_protocol(data,node,socket_id):
+    EchoProtocol.process(data,node,socket_id,mb)
 
     
 def __TestMBoxCallback(msg, *k, **kw):
