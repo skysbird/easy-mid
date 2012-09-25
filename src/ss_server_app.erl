@@ -52,6 +52,13 @@ get_app_env(Opt,Default)->
 %% @end
 %%--------------------------------------------------------------------
 start(_StartType, _StartArgs) ->
+    error_logger:add_report_handler(error_logger_log4erl_h),
+    LogSize = 1000000,
+    LogFileCount = 10,
+    LogDir = "/var/log/ss_server",
+    application:start(log4erl),
+    log4erl:add_file_appender(file, {LogDir, "logger1", {size, LogSize}, LogFileCount, "elog", info,"%j %T [%L] %l%n"}),
+
     ListenPort = get_app_env(listen_port,?DEF_PORT),
     ets:new(socket_list,[public,named_table]),
     io:format("starting socket_list table...."),

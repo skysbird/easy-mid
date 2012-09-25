@@ -154,7 +154,7 @@ par_connect(ListenSocket,Module,N)->
     spawn(fun()->par_connect(ListenSocket,Module,N+1)end),
     io:format("~p\n",[Socket]),
     io:format("~p\n",[self()]),
-    io:format("accepted connection from ~p--------~p\n", [ssl:peername(Socket),N]),
+    log4erl:log(info,"accepted connection from ~p--------~p\n", [ssl:peername(Socket),N]),
     server_loop(Socket,Module).
 
    

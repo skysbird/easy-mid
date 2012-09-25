@@ -52,7 +52,7 @@ start_link() ->
 %%--------------------------------------------------------------------
 
 forward(Node,SocketPid,Message)->
-    io:format("got rpc request ~p ~p ~p",[Node,SocketPid,Message]),
+    %io:format("got rpc request ~p ~p ~p",[Node,SocketPid,Message]),
     case ets:lookup(socket_list,SocketPid) of
         [{SocketPid,Socket}]->
             io:format("find socket in ets ~p ~p ~p ",[Socket,Node,node()]),
