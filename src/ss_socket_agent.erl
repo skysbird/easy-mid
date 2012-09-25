@@ -52,9 +52,13 @@ start_link() ->
 %%--------------------------------------------------------------------
 
 forward(Node,SocketPid,Message)->
+    io:format("got rpc request ~p ~p ~p",[Node,SocketPid,Message]),
     case ets:lookup(socket_list,SocketPid) of
         [{SocketPid,Socket}]->
-            if Node == node()->
+            io:format("find socket in ets ~p ~p ~p ",[Socket,Node,node()]),
+            Node1 = list_to_atom(Node),
+            if Node1 == node()->
+                    io:format("using local socket to send ~p",[Socket]),
                     spawn(fun()->
                           ssl:send(Socket,Message)
                       end);
