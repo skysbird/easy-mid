@@ -67,6 +67,20 @@ this python process node is just echo the data it received
 
 
 
+###build with rebar###
+
+####notice####
+
+the project name in your harddisk should be ss_server.
+
+./rebar generate -f
+
+
+
+
+
+
+
 
 
 

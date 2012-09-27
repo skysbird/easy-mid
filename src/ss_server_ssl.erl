@@ -141,8 +141,8 @@ start_ssl(Port,Module) when is_integer(Port),is_atom(Module) ->
         %{verify, 0},
     binary,
 	{packet, 0},
-        {certfile, "../cert/cacert.pem"},
-        {keyfile, "../cert/privkey.pem"}
+        {certfile, code:priv_dir("ss_server")++"/cert/cacert.pem"},
+        {keyfile,code:priv_dir("ss_server")++ "/cert/privkey.pem"}
     ]),
     io:format("ready to accept connections at port ~p ~p\n", [Port,ListenSocket]),
     spawn_link(fun()-> par_connect(ListenSocket,Module,1)end).
