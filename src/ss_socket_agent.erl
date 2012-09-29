@@ -58,7 +58,8 @@ forward(Node,SocketPid,Message)->
             io:format("find socket in ets ~p ~p ~p ",[Socket,Node,node()]),
             Node1 = list_to_atom(Node),
             if Node1 == node()->
-                    io:format("using local socket to send ~p",[Socket]),
+                    io:format("using local socket to send ~p ~p",[Socket,Message]),
+                    log4erl:log(info,"using local socket to send ~p",[Socket]),
                     spawn(fun()->
                           ssl:send(Socket,Message)
                       end);
