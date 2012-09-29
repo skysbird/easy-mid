@@ -57,7 +57,9 @@ start(_StartType, _StartArgs) ->
     LogFileCount = 10,
     LogDir = "/var/log/ss_server",
     application:start(log4erl),
+    log4erl:add_console_appender(cmd_logs, {info, "%j %T [%L] %l%n"}),
     log4erl:add_file_appender(file, {LogDir, "logger1", {size, LogSize}, LogFileCount, "elog", info,"%j %T [%L] %l%n"}),
+    log4erl:log(info,"test"),
 
     ListenPort = get_app_env(listen_port,?DEF_PORT),
     ets:new(socket_list,[public,named_table]),
