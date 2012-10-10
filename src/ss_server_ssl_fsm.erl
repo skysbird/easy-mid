@@ -105,7 +105,7 @@ init([]) ->
     io:format("data came\n"),
     io:format("route request to process module\n"),
     Term = {Data,node(),list_to_binary(get_socket_pid(S))},
-    {p, 'ss1@127.0.0.1'} ! Term,
+    {p, 'ss1@192.168.0.117'} ! Term,
     {next_state, 'WAIT_FOR_DATA', State, ?TIMEOUT};
 
 'WAIT_FOR_DATA'(timeout, #state{socket=S} = State) ->
