@@ -29,7 +29,7 @@
                 addr       % client address
                }).
 
--define(TIMEOUT, 120000).
+-define(TIMEOUT, 300000).
 
 set_socket(Pid, Socket) when is_pid(Pid) ->
     io:format("send event\n"),

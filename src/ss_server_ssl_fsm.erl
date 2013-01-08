@@ -90,8 +90,12 @@ init([]) ->
         {ok, {IP, _Port}} -> io:format("~p,~p,socket in\n",[IP,_Port]),
             {next_state, 'WAIT_FOR_DATA', State#state{socket=Socket, addr=IP}, ?TIMEOUT};
         {error,closed} -> 
+            %tell process node disconnect 
+            Data = <<"<?xml version=\"1.0\" encoding=\"UTF-8\"?><package uid=\"\"><request type=\"logout\" id=\"\" ></request></package>">>,
+            Term = {Data,node(),list_to_binary(SocketPid)},
+            {p, 'ss1@192.168.0.117'} ! Term,
             ets:delete(socket_list,SocketPid),
-            io:format("connection closed"),
+            log4erl:log(info,"connection closed"),
             {stop, normal, State}
     end;
 
@@ -112,6 +116,10 @@ init([]) ->
     io:format("data timeout\n"),
     error_logger:error_msg("~p Client connection timeout - closing.\n", [self()]),
     SocketPid = get_socket_pid(S),
+    %tell process node disconnect 
+    Data = <<"<?xml version=\"1.0\" encoding=\"UTF-8\"?><package uid=\"\"><request type=\"logout\" id=\"\" ></request></package>">>,
+    Term = {Data,node(),list_to_binary(SocketPid)},
+    {p, 'ss1@192.168.0.117'} ! Term,
     ets:delete(socket_list,SocketPid),
     {stop, normal, State};
 
@@ -163,9 +171,13 @@ handle_info({ssl, Socket, Bin}, StateName, #state{socket=Socket} = StateData) ->
 
 handle_info({ssl_closed, Socket}, _StateName,
             #state{socket=Socket, addr=Addr} = StateData) ->
-    error_logger:info_msg("~p Client ~p disconnected.\n", [self(), Addr]),
+    log4erl:log(info,"~p Client ~p disconnected.\n", [self(), Addr]),
 
     SocketPid = get_socket_pid(Socket), 
+    %tell process node disconnect 
+    Data = <<"<?xml version=\"1.0\" encoding=\"UTF-8\"?><package uid=\"\"><request type=\"logout\" id=\"\" ></request></package>">>,
+    Term = {Data,node(),list_to_binary(SocketPid)},
+    {p, 'ss1@192.168.0.117'} ! Term,
     ets:delete(socket_list,SocketPid),
     {stop, normal, StateData};
 %%--------------------------------------------------------------------
