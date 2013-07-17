@@ -135,12 +135,12 @@ start_ssl(Port,Module) when is_integer(Port),is_atom(Module) ->
         {ssl_imp, new},
         {active, false},
 	    {reuseaddr,true},
-        {backlog,1000000},
-        {nodelay,true},% set tcp nodelay
+        {backlog,100000000},
+        %{nodelay,true},% set tcp nodelay
         %just not verify for test
         %{verify, 0},
     binary,
-	{packet, 0},
+	{packet, raw},
         {certfile, code:priv_dir("ss_server")++"/cert/cacert.pem"},
         {keyfile,code:priv_dir("ss_server")++ "/cert/privkey.pem"}
     ]),

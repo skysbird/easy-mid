@@ -4,7 +4,7 @@
 ## Cookie for distributed erlang
 -setcookie 123456
 
--listen_port 8243
+-listen_port 8343
 
 -env ERL_NO_VFORK 1
 

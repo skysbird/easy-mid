@@ -12,7 +12,7 @@
 
 %% API
 -export([start_link/0]).
--export([forward/3,kick/4]).
+-export([forward/3,kick/4,close/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -71,6 +71,27 @@ forward(Node,SocketPid,Message)->
     end,
     {noreplay,#state{}}.
 
+
+close(Node,SocketPid)->
+    %io:format("got rpc request ~p ~p ~p",[Node,SocketPid,Message]),
+    case ets:lookup(socket_list,SocketPid) of
+        [{SocketPid,Socket}]->
+            io:format("find socket in ets to close~p ~p ~p ",[Socket,Node,node()]),
+            Node1 = list_to_atom(Node),
+            if Node1 == node()->
+                    log4erl:log(info,"using local socket to close ~p",[Socket]),
+                    spawn(fun()->
+                          ssl:close(Socket)
+                      end);
+                true->
+                    gen_server:call({?MODULE,Node},{close,Socket})
+            end;
+        _->
+           log4erl:log(info,"not find SocketPid ~p",[SocketPid])
+    end,
+    {noreplay,#state{}}.
+
+
 kick(Node,SocketFSM,Socket,Message)->
     gen_server:call({?MODULE,Node},{kick,SocketFSM,Socket,Message}).
 
@@ -82,6 +103,12 @@ init([]) ->
 handle_call({forward,Socket,Msg}, _From, State) ->
     spawn(fun()->
 		  ssl:send(Socket,Msg)
+	  end),
+    {noreply, State};
+
+handle_call({close,Socket}, _From, State) ->
+    spawn(fun()->
+		  ssl:close(Socket)
 	  end),
     {noreply, State};
 

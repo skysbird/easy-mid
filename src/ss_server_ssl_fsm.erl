@@ -108,6 +108,7 @@ init([]) ->
 'WAIT_FOR_DATA'({data, Data}, #state{socket=S} = State) ->
     io:format("data came\n"),
     io:format("route request to process module\n"),
+    log4erl:log(info,"data is ~ts\n",[Data]),
     Term = {Data,node(),list_to_binary(get_socket_pid(S))},
     {p, 'ss1@192.168.0.117'} ! Term,
     {next_state, 'WAIT_FOR_DATA', State, ?TIMEOUT};
