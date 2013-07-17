@@ -82,7 +82,7 @@ init([]) ->
     ssl:setopts(Socket, [{active, once}]),
     %{sslsocket,new_ssl,<0.63.0>}
     SocketPid = case Socket of
-        {sslsocket,new_ssl,Pid} -> io:format("socket pid is ~p\n",[Pid]),
+        {sslsocket,_,Pid} -> io:format("socket pid is ~p\n",[Pid]),
         pid_to_list(Pid)
     end,
     ets:insert(socket_list,{SocketPid,Socket}),
@@ -221,7 +221,7 @@ code_change(_OldVsn, StateName, State, _Extra) ->
 
 get_socket_pid(Socket)->
     SocketPid = case Socket of
-        {sslsocket,new_ssl,Pid} -> io:format("socket pid is ~p\n",[Pid]),
+        {sslsocket,_,Pid} -> io:format("socket pid is ~p\n",[Pid]),
         pid_to_list(Pid)
     end,
     SocketPid.
